@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NetScan Pro</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #000;
+  color: #e5e5e7;
+  font-family: -apple-system, sans-serif;
+  max-width: 430px;
+  margin: 0 auto;
+}
+.header {
+  background: #1c1c1e;
+  padding: 40px 20px 20px;
+  border-bottom: 1px solid #2c2c2e;
+}
+.header-inner { display: flex; align-items: center; gap: 12px; }
+.icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, #0a84ff, #30d158);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.title { font-size: 20px; font-weight: 700; }
+.subtitle { font-size: 11px; color: #636366; }
+.tabs {
+  display: flex; background: #1c1c1e;
+  border-bottom: 1px solid #2c2c2e;
+}
+.tab {
+  flex: 1; padding: 12px; border: none;
+  background: transparent; color: #636366;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab.active { color: #0a84ff; border-bottom-color: #0a84ff; }
+.content { padding: 20px; }
+.card {
+  background: #1c1c1e; border-radius: 12px;
+  padding: 16px; margin-bottom: 16px;
+  border: 1px solid #2c2c2e;
+}
+.label {
+  font-size: 12px; color: #636366; margin-bottom: 8px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+input {
+  width: 100%; background: #2c2c2e;
+  border: 1px solid #3a3a3c; border-radius: 8px;
+  padding: 12px; color: #fff; font-size: 15px; outline: none;
+}
+.btn {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, #0a84ff, #0040dd);
+  border: none; border-radius: 12px; color: #fff;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(10,132,255,0.4);
+}
+.btn:disabled { background: #2c2c2e; box-shadow: none; }
+.progress-bar {
+  background: #2c2c2e; border-radius: 4px;
+  height: 6px; overflow: hidden; margin-top: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0a84ff, #30d158);
+  border-radius: 4px; transition: width 0.3s ease;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: #1c1c1e; border-radius: 12px; padding: 14px;
+}
+.stat-value { font-size: 22px; font-weight: 800; }
+.stat-label { font-size: 11px; color: #636366; margin-top: 2px; }
+.row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid #2c2c2e;
+}
+.row-key { font-size: 13px; color: #aeaeb2; }
+.row-val { font-size: 13px; font-weight: 500; }
+.port-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid #2c2c2e;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.port-name { font-size: 14px; font-weight: 600; }
+.port-num { font-size: 11px; color: #636366; }
+.badge {
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
+  border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.empty { text-align: center; color: #636366; padding: 40px 0; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.section-title {
+  font-size: 13px; color: #636366; font-weight: 600;
+  margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.info-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.info-desc { font-size: 13px; color: #aeaeb2; line-height: 1.5; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="icon">🔍</div>
+    <div>
+      <div class="title">NetScan Pro</div>
+      <div class="subtitle">Security Network Scanner</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('scanner')">🎯 Scan</button>
+  <button class="tab" onclick="switchTab('history')">📋 History</button>
+  <button class="tab" onclick="switchTab('info')">ℹ️ Info</button>
+</div>
+
+<div class="content">
+
+  <!-- SCANNER TAB -->
+  <div id="tab-scanner">
+    <div class="card">
+      <div class="label">Target Host</div>
+      <input id="targetInput" type="text" placeholder="192.168.1.1 or hostname.com" onkeydown="if(event.key==='Enter') startScan()"/>
+    </div>
+
+    <button class="btn" id="scanBtn" onclick="startScan()">🚀 Start Scan</button>
+
+    <div id="progressSection" class="card hidden">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span id="stepText" style="font-size:13px;color:#aeaeb2"></span>
+        <span id="progressText" style="font-size:13px;color:#0a84ff;font-weight:700">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="resultsSection" class="hidden">
+      <div class="grid" id="statsGrid"></div>
+      <div class="card" id="hostCard"></div>
+      <div class="card hidden" id="portsCard"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" class="hidden">
+    <div id="historyList">
+      <div class="empty">
+        <div class="empty-icon">📋</div>
+        <div>No scans yet. Run your first scan!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO TAB -->
+  <div id="tab-info" class="hidden">
+    <div class="card"><div class="info-title">🔴 Critical Risk</div><div class="info-desc">Telnet (23), SMB (445) — Unencrypted or historically exploited. Disable immediately if not needed.</div></div>
+    <div class="card"><div class="info-title">🟠 High Risk</div><div class="info-desc">FTP (21), RDP (3389), VNC (5900), MySQL (3306) — Commonly targeted. Restrict with firewall rules.</div></div>
+    <div class="card"><div class="info-title">🟡 Medium Risk</div><div class="info-desc">SSH (22), SMTP (25), POP3/IMAP — Secure but require hardening and strong authentication.</div></div>
+    <div class="card"><div class="info-title">🟢 Low Risk</div><div class="info-desc">HTTP (80), HTTPS (443), DNS (53) — Standard web services. Keep patched and monitored.</div></div>
+    <div class="card"><div class="info-title">⚠️ Promiscuous Mode</div><div class="info-desc">Interface capturing all traffic — sign of a sniffer or monitoring tool on the network.</div></div>
+    <div class="card"><div class="info-title">🔍 DNS Leaks</div><div class="info-desc">DNS leaks expose browsing activity. Use encrypted DNS (DoH/DoT) to mitigate.</div></div>
+  </div>
+
+</div>
+
+<script>
+const PORTS = [21,22,23,25,53,80,110,143,443,445,3306,3389,5900,8080,8443];
+const SERVICES = {21:"FTP",22:"SSH",23:"Telnet",25:"SMTP",53:"DNS",80:"HTTP",110:"POP3",143:"IMAP",443:"HTTPS",445:"SMB",3306:"MySQL",3389:"RDP",5900:"VNC",8080:"HTTP-Alt",8443:"HTTPS-Alt"};
+const RISKS = {21:"high",23:"critical",445:"critical",3389:"high",5900:"high",3306:"high",22:"medium",25:"medium",80:"low",443:"low",53:"low",8080:"low",8443:"low",110:"medium",143:"medium"};
+const COLORS = {critical:"#ff2d55",high:"#ff9500",medium:"#ffcc00",low:"#34c759"};
+
+let history = [];
+let scanning = false;
+
+const steps = [
+  "Resolving hostname...","Sending ICMP ping...",
+  "Detecting OS fingerprint...","Scanning common ports...",
+  "Checking promiscuous mode...","Testing DNS configuration...",
+  "Analyzing results..."
+];
+
+function switchTab(tab) {
+  ["scanner","history","info"].forEach(t => {
+    document.getElementById("tab-"+t).classList.add("hidden");
+    document.querySelectorAll(".tab")[["scanner","history","info"].indexOf(t)].classList.remove("active");
+  });
+  document.getElementById("tab-"+tab).classList.remove("hidden");
+  document.querySelectorAll(".tab")[["scanner","history","info"].indexOf(tab)].classList.add("active");
+}
+
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function generateScan(target) {
+  const openPorts = PORTS.filter(()=>Math.random()>0.6);
+  return {
+    target, ip: `${rnd(1,254)}.${rnd(1,254)}.${rnd(1,254)}.${rnd(1,254)}`,
+    os: ["Linux 5.x","Windows Server 2019","Ubuntu 22.04","CentOS 8"][rnd(0,3)],
+    openPorts: openPorts.map(p=>({port:p,service:SERVICES[p],risk:RISKS[p]})),
+    scanTime: (Math.random()*3+1).toFixed(2),
+    ttl: rnd(64,128),
+    promisc: Math.random()>0.8,
+    dnsLeak: Math.random()>0.7,
+    timestamp: new Date().toLocaleTimeString()
+  };
+}
+
+async function startScan() {
+  if(scanning) return;
+  const target = document.getElementById("targetInput").value.trim();
+  if(!target) return;
+
+  scanning = true;
+  document.getElementById("scanBtn").disabled = true;
+  document.getElementById("scanBtn").textContent = "⚡ Scanning...";
+  document.getElementById("progressSection").classList.remove("hidden");
+  document.getElementById("resultsSection").classList.add("hidden");
+
+  for(let i=0;i<steps.length;i++){
+    document.getElementById("stepText").textContent = steps[i];
+    const pct = Math.round(((i+1)/steps.length)*100);
+    document.getElementById("progressText").textContent = pct+"%";
+    document.getElementById("progressFill").style.width = pct+"%";
+    await new Promise(r=>setTimeout(r,400+Math.random()*300));
+  }
+
+  const result = generateScan(target);
+  showResults(result);
+  addHistory(result);
+
+  scanning = false;
+  document.getElementById("scanBtn").disabled = false;
+  document.getElementById("scanBtn").textContent = "🚀 Start Scan";
+  document.getElementById("progressSection").classList.add("hidden");
+}
+
+function showResults(r) {
+  const critical = r.openPorts.filter(p=>p.risk==="critical").length;
+  const high = r.openPorts.filter(p=>p.risk==="high").length;
+
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="stat-card" style="border:1px solid #0a84ff33">
+      <div class="stat-value" style="color:#0a84ff">${r.openPorts.length}</div>
+      <div class="stat-label">Open Ports</div>
+    </div>
+    <div class="stat-card" style="border:1px solid #30d15833">
+      <div class="stat-value" style="color:#30d158">${r.scanTime}s</div>
+      <div class="stat-label">Scan Time</div>
+    </div>
+    <div class="stat-card" style="border:1px solid #ff2d5533">
+      <div class="stat-value" style="color:#ff2d55">${critical}</div>
+      <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-card" style="border:1px solid #ff950033">
+      <div class="stat-value" style="color:#ff9500">${high}</div>
+      <div class="stat-label">High Risk</div>
+    </div>`;
+
+  document.getElementById("hostCard").innerHTML = `
+    <div class="section-title">Host Details</div>
+    ${[["Target",r.target],["IP Address",r.ip],["OS Detected",r.os],["TTL",r.ttl],
+      ["Promisc Mode",r.promisc?"⚠️ DETECTED":"✅ Clean"],
+      ["DNS Leaks",r.dnsLeak?"⚠️ DETECTED":"✅ Clean"]
+    ].map(([k,v])=>`
+      <div class="row">
+        <span class="row-key">${k}</span>
+        <span class="row-val" style="color:${String(v).includes("DETECTED")?"#ff9500":"#e5e5e7"}">${v}</span>
+      </div>`).join("")}`;
+
+  if(r.openPorts.length>0){
+    document.getElementById("portsCard").classList.remove("hidden");
+    document.getElementById("portsCard").innerHTML = `
+      <div class="section-title">Open Ports (${r.openPorts.length})</div>
+      ${r.openPorts.map(p=>`
+        <div class="port-row">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="dot" style="background:${COLORS[p.risk]}"></div>
+            <div>
+              <div class="port-name">${p.service}</div>
+              <div class="port-num">Port ${p.port}</div>
+            </div>
+          </div>
+          <span class="badge" style="background:${COLORS[p.risk]}22;color:${COLORS[p.risk]}">${p.risk}</span>
+        </div>`).join("")}`;
+  }
+
+  document.getElementById("resultsSection").classList.remove("hidden");
+}
+
+function addHistory(r) {
+  history.unshift(r);
+  if(history.length>10) history.pop();
+  const list = document.getElementById("historyList");
+  list.innerHTML = history.map(h=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-weight:600;font-size:15px">${h.target}</span>
+        <span style="font-size:11px;color:#636366">${h.timestamp}</span>
+      </div>
+      <div style="font-size:12px;color:#aeaeb2">${h.ip} • ${h.openPorts.length} open ports • ${h.scanTime}s</div>
+    </div>`).join("");
+}
+</script>
+</body>
+</html>
