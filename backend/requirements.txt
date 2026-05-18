@@ -1,0 +1,11 @@
+# NetScan Pro Backend Dependencies
+flask==3.0.3
+flask-cors==4.0.1
+python-dotenv==1.0.1
+xmltodict==0.13.0
+# Optional: for async scanning in production
+# celery==5.4.0
+# redis==5.0.3
+# For advanced scanning (alternative to nmap subprocess)
+# python-nmap==0.7.1
+# scapy==2.5.0
